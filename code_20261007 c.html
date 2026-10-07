@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>温椿白 档案系统</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:monospace,"Microsoft YaHei";}
+body{
+  background:#0b0c14;
+  overflow:hidden;
+  color:#e6eaf8;
+}
+#snowCanvas{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  z-index:0;pointer-events:none;
+}
+.wrap{
+  position:relative;z-index:2;
+  width:100vw;height:100vh;
+  display:flex;align-items:center;justify-content:center;
+}
+/* 入口盒子 */
+.entry-box{
+  position:relative;
+  width:520px;
+  border:2px solid #c5c8e8;
+  background:rgba(15,17,30,0.92);
+  box-shadow:0 0 18px #b4b8e6, inset 0 0 40px rgba(190,195,235,0.08);
+  border-radius:6px;
+  overflow:hidden;
+}
+.entry-box::after{
+  content:"";position:absolute;top:0;left:0;right:0;bottom:0;
+  background:repeating-linear-gradient(transparent 0,transparent 3px,rgba(160,165,210,0.06) 3px,rgba(160,165,210,0.06) 6px);
+  pointer-events:none;
+}
+.top-bar{
+  background:#c5c8e8;color:#0b0c14;
+  padding:8px 16px;font-weight:bold;
+  display:flex;justify-content:space-between;
+}
+.content{
+  padding:35px 25px;text-align:center;
+}
+.content h2{
+  color:#d0d4f2;letter-spacing:2px;margin-bottom:16px;
+}
+.content p{
+  color:#abb0dd;line-height:1.6;margin-bottom:28px;
+}
+#enterBtn{
+  background:#c5c8e8;color:#0b0c14;
+  border:none;padding:10px 26px;border-radius:3px;
+  font-weight:bold;font-size:16px;cursor:pointer;
+}
+#enterBtn:hover{background:#d8dbf5;}
+/* 档案弹窗 */
+.archive-overlay{
+  display:none;
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:rgba(0,0,0,0.75);z-index:10;
+  align-items:center;justify-content:center;
+}
+.archive-box{
+  position:relative;
+  width:85%;height:90vh;
+  border:2px solid #c5c8e8;
+  background:rgba(15,17,30,0.92);
+  box-shadow:0 0 18px #b4b8e6, inset 0 0 40px rgba(190,195,235,0.08);
+  border-radius:6px;overflow:hidden;
+}
+.archive-box::after{
+  content:"";position:absolute;top:0;left:0;right:0;bottom:0;
+  background:repeating-linear-gradient(transparent 0px,transparent 3px,rgba(160,165,210,0.06)3px,rgba(160,165,210,0.06)6px);
+  pointer-events:none;
+}
+.archive-topbar{
+  background:#c5c8e8;color:#0b0c14;
+  padding:8px 16px;font-size:15px;font-weight:bold;
+  display:flex;justify-content:space-between;
+}
+.archive-close{
+  cursor:pointer;
+}
+.container{
+  display:grid;grid-template-columns:62% 38%;
+  height:calc(100% - 42px);padding:20px;gap:20px;
+}
+.info-area{
+  padding-right:10px;overflow-y:auto;
+  line-height:1.7;font-size:14px;
+}
+.info-area h2{color:#d0d4f2;margin-bottom:12px;letter-spacing:2px;}
+.info-area strong{color:#bbc0ee;}
+.info-area p{margin-bottom:14px;}
+.info-area ul{padding-left:20px;margin-bottom:10px;}
+.game-panel{
+  border:2px solid #c5c8e8;
+  background:rgba(22,24,40,0.85);
+  box-shadow:0 0 10px #b4b8e6 inset;
+  border-radius:6px;padding:16px;
+  display:flex;flex-direction:column;
+}
+.game-title{
+  text-align:center;color:#d0d4f2;font-weight:bold;margin-bottom:12px;letter-spacing:1px;
+}
+#gameCanvas{
+  flex:1;width:100%;background:#121422;
+  border:1px solid #999ccc;border-radius:4px;
+  position:relative;overflow:hidden;margin-bottom:12px;
+  cursor:crosshair;
+}
+.btn-group{display:flex;gap:10px;justify-content:center;}
+.btn-group button{
+  background:#c5c8e8;color:#0b0c14;border:none;
+  padding:6px 14px;border-radius:3px;font-weight:bold;cursor:pointer;
+}
+.btn-group button:hover{background:#d8dbf5;}
+.tip-text{text-align:center;font-size:12px;color:#abb0dd;margin-top:8px;}
+.info-area::-webkit-scrollbar{width:4px;}
+.info-area::-webkit-scrollbar-thumb{background:#b4b8e6;border-radius:2px;}
+/* 愿望弹窗 */
+.wish-overlay{
+  display:none;
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:rgba(0,0,0,0.82);z-index:20;
+  align-items:center;justify-content:center;
+}
+.wish-box{
+  position:relative;
+  width:440px;
+  border:2px solid #c5c8e8;
+  background:rgba(15,17,30,0.95);
+  box-shadow:0 0 22px #b4b8e6;
+  border-radius:6px;
+  padding:26px;
+  text-align:center;
+}
+.wish-box::after{
+  content:"";position:absolute;top:0;left:0;right:0;bottom:0;
+  background:repeating-linear-gradient(transparent 0,transparent 3px,rgba(160,165,210,0.06)3px,rgba(160,165,210,0.06)6px);
+  pointer-events:none;border-radius:6px;
+}
+.wish-box h3{
+  color:#d0d4f2;letter-spacing:2px;margin-bottom:14px;
+}
+.wish-box p{
+  color:#abb0dd;line-height:1.6;margin-bottom:16px;
+}
+#wishText{
+  width:100%;
+  min-height:100px;
+  background:#121422;
+  border:1px solid #999ccc;
+  color:#e6eaf8;
+  padding:10px;
+  border-radius:4px;
+  resize:none;
+  font-family:monospace;
+  margin-bottom:16px;
+}
+.wish-btn{
+  background:#c5c8e8;color:#0b0c14;border:none;
+  padding:8px 20px;border-radius:3px;font-weight:bold;cursor:pointer;
+}
+.wish-btn:hover{background:#d8dbf5;}
+.btn-row{
+  display:flex;gap:10px;justify-content:center;
+}
+
+/*雪花寄信消散粒子动画【修复类名符号】 */
+@keyframes snowDriftAway{
+    0%{opacity:1;transform:translate(0,0) rotate(0deg);}
+    100%{opacity:0;transform:translate(var(--tx),var(--ty)) rotate(720deg);}
+}
+.snow-particle{
+    position:absolute;
+    font-size:18px;
+    pointer-events:none;
+    animation:snowDriftAway 1.4s ease-out forwards;
+}
+</style>
+</head>
+<body>
+<canvas id="snowCanvas"></canvas>
+<div class="wrap">
+  <div class="entry-box">
+    <div class="top-bar">
+      <span>SYSTEM ARCHIVE</span>
+      <span>白昼时序档案系统</span>
+    </div>
+    <div class="content">
+      <h2>温椿白</h2>
+      <p>时序守望者｜白昼秩序维系者<br>本源【灵】，冬雪所生</p>
+      <button id="enterBtn">进入档案</button>
+    </div>
+  </div>
+</div>
+<div class="archive-overlay" id="archiveOverlay">
+  <div class="archive-box">
+    <div class="archive-topbar">
+      <span>ARCHIVE FILE — CHUNBAI</span>
+      <span class="archive-close" onclick="closeArchive()">✕ 关闭档案</span>
+    </div>
+    <div class="container">
+      <div class="info-area">
+        <h2>温椿白</h2>
+        <p><strong>身份</strong><br>
+        时序守望者｜白昼秩序维系者，本源【灵】，以冬雪为素材诞生，执掌世界光明面，与温枫年互为昼夜搭档，日常称呼温枫年为姐姐。
+        </p>
+        <p><strong>外貌特征</strong><br>
+        有着如同冬日落雪一般的银白泛浅灰长发，发丝柔软松散、轻盈自然。肤色清透冷白，眼瞳是通透干净的淡紫色，如同冰封冰层之下静静凝住的一层紫雾，澄澈又温柔。左脸颊生有一颗浅淡的小痣，为素净清冷的面容添上独有的柔软标记。整体气质安静素冷，像旷野里无人惊扰、静静堆积的薄雪。专属代表色：霜白、浅灰、淡紫。
+        </p>
+        <p><strong>人物性格</strong><br>
+        在外人面前，永远是一副冷淡寡言的模样，自带生人勿近的清冷疏离气场，极少主动开口搭话、从不主动合群。但这份冷漠只是外在气场，绝非不善言辞。她本身逻辑清晰、表达流畅、十分擅长沟通，内心鲜活活泼、思绪跳跃，脑海里永远藏着源源不断的新奇想法。<br><br>
+        她天生慢热且谨慎，不会轻易对陌生人敞开心扉，所有的活泼、健谈、热烈，<strong>只专属熟悉且完全信任的人</strong>。尤其面对姐姐温枫年时，周身冰冷外壳会彻底消融，变得格外健谈、松弛又热情，会主动滔滔不绝、火热畅快地闲谈，毫无保留地倾诉心底思绪、日常见闻与细碎小事。
+        </p>
+        <p><strong>背景设定</strong><br>
+        本源【灵】自凛冬落雪之中诞生，与生俱来执掌白昼秩序与世间光明。专属职责为稳住白昼时序、净化白日滋生的躁动杂念、稳固整片白昼边界，维系人间白日的安稳平和。<br><br>
+        与温枫年形成完美昼夜分工：温枫年执掌黑夜、管控异象、回溯修补空间裂痕；温椿白守护白昼、稳定时序、净化光明区域躁动。二人昼夜相依、彼此兜底，共同维系整个主空间的平衡与安宁。<br><br>
+        她无需伪装自己，清冷疏离是与生俱来的本色，不同于被迫外向的温枫年。冰雪是她温柔的保护屏障，她所有的鲜活、热忱、灵动与流利表达，只赠予自己认可、信赖、珍视之人。
+        </p>
+        <p><strong>人物细节</strong></p>
+        <ul>
+          <li>代表意象：凛冬落雪，雪面寂静清冷，雪下藏着蓬勃鲜活的生机</li>
+          <li>专属代表色：霜白、浅灰、冰淡紫</li>
+          <li>面对陌生人与生人，始终沉默清冷、保持距离，绝不主动倾诉</li>
+          <li>面对姐姐温枫年与亲信之人，彻底放开自我，话多活泼、畅所欲言</li>
+          <li>被人真诚夸奖时不会害羞局促，只会安静接纳，淡紫色眼瞳会悄悄发亮</li>
+          <li>动用光明力量、维系白昼秩序时，会显露【灵】之本相，紫瞳澄澈明亮、自带柔光</li>
+        </ul>
+      </div>
+      <div class="game-panel">
+        <div class="game-title">❄ 收集落雪 ❄</div>
+        <div id="gameCanvas"></div>
+        <div class="btn-group">
+          <button onclick="resetGame()">重新开始</button>
+        </div>
+        <div class="tip-text">点击飘落雪花收集 · 分数：<span id="score">0</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="wish-overlay" id="wishOverlay">
+  <div class="wish-box">
+    <h3>❄ 雪花祝福已解锁 ❄</h3>
+    <p>「雪落时序，天光长存。愿世间风雪温柔，万事皆安。——温椿白」</p>
+    <textarea id="wishText" placeholder="在这里写下你的愿望……"></textarea>
+    <div class="btn-row">
+        <button class="wish-btn" onclick="sendWish()">雪花寄信</button>
+        <button class="wish-btn" onclick="closeWish()">暂且收起</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let voicesList = [];
+if(window.speechSynthesis){
+    speechSynthesis.onvoiceschanged = function(){
+        voicesList = speechSynthesis.getVoices();
+    };
+}
+
+// 语音 愿望成真
+function speakWishComeTrue(){
+    if(!window.speechSynthesis) return;
+    const utter = new SpeechSynthesisUtterance("愿望成真");
+    utter.lang = "zh-CN";
+    utter.rate = 1.15;
+    utter.pitch = 1.35;
+    utter.volume = 0.85;
+    const girlVoice = voicesList.find(v=>v.lang.includes("zh") && v.name.includes("Xiaoxiao"))
+        || voicesList.find(v=>v.lang.includes("zh"));
+    if(girlVoice) utter.voice = girlVoice;
+    speechSynthesis.cancel();
+    speechSynthesis.speak(utter);
+}
+
+//踩雪音效
+let audioCtx;
+function playCrunchSnow() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const bufferSize = audioCtx.sampleRate * 0.12;
+  const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) {
+    data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize,1.2);
+  }
+  const source = audioCtx.createBufferSource();
+  const filter = audioCtx.createBiquadFilter();
+  filter.type = "highpass";
+  filter.frequency.value = 700;
+  source.buffer = buffer;
+  source.connect(filter);
+  filter.connect(audioCtx.destination);
+  source.start();
+}
+
+//全局背景雪花
+const snowCanvas = document.getElementById('snowCanvas');
+const sCtx = snowCanvas.getContext('2d');
+snowCanvas.width = window.innerWidth;
+snowCanvas.height = window.innerHeight;
+let snowArr = [];
+class Snow {
+  constructor() {
+    this.x = Math.random() * snowCanvas.width;
+    this.y = Math.random() * -snowCanvas.height;
+    this.r = Math.random() * 2 + 1;
+    this.speedY = Math.random() + 0.5;
+    this.speedX = Math.random() * 0.3 - 0.15;
+  }
+  move() {
+    this.y += this.speedY;
+    this.x += this.speedX;
+    if (this.y > snowCanvas.height) {
+      this.y = -10;
+      this.x = Math.random() * snowCanvas.width;
+    }
+  }
+  draw() {
+    sCtx.beginPath();
+    sCtx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+    sCtx.fillStyle = '#ffffff';
+    sCtx.fill();
+  }
+}
+for(let i=0;i<90;i++) snowArr.push(new Snow());
+function snowLoop(){
+  sCtx.clearRect(0,0,snowCanvas.width,snowCanvas.height);
+  snowArr.forEach(v=>{v.move();v.draw();})
+  requestAnimationFrame(snowLoop);
+}
+snowLoop();
+window.onresize = ()=>{
+  snowCanvas.width = window.innerWidth;
+  snowCanvas.height = window.innerHeight;
+}
+
+//档案弹窗
+const overlay = document.getElementById("archiveOverlay");
+document.getElementById("enterBtn").onclick = function(){
+  overlay.style.display = "flex";
+  startGame();
+}
+function closeArchive(){
+  overlay.style.display = "none";
+}
+
+//愿望弹窗
+const wishOverlay = document.getElementById("wishOverlay");
+function openWish(){
+  wishOverlay.style.display = "flex";
+}
+function closeWish(){
+  wishOverlay.style.display = "none";
+}
+
+//雪花寄信【修复粒子class名称】
+function sendWish(){
+    closeWish();
+    const gameArea = document.getElementById("gameCanvas");
+    for(let i=0;i<16;i++){
+        const p = document.createElement("div");
+        p.className="snow-particle";
+        p.innerText="❄";
+        p.style.left="50%";
+        p.style.top="50%";
+        p.style.setProperty("--tx", (-130+Math.random()*260)+"px");
+        p.style.setProperty("--ty", (-150+Math.random()*130)+"px");
+        gameArea.appendChild(p);
+        setTimeout(()=>p.remove(),1400);
+    }
+    setTimeout(()=>{
+        speakWishComeTrue();
+        document.getElementById("wishText").value="";
+        startGame();
+    },1500);
+}
+
+//小游戏逻辑
+const gameArea = document.getElementById('gameCanvas');
+let scoreText = document.getElementById("score");
+let score = 0;
+let gameSnowList = [];
+let gameTimer;
+let unlocked = false;
+
+class GameSnow{
+  constructor(){
+    this.el = document.createElement("div");
+    this.el.style.position = "absolute";
+    this.el.style.width = "16px";
+    this.el.style.height = "16px";
+    this.el.style.borderRadius = "50%";
+    this.el.style.background = "#fff";
+    this.el.style.boxShadow = "0 0 8px #cdd6f0";
+    this.x = Math.random() * (gameArea.clientWidth - 20);
+    this.y = -20;
+    this.speed = Math.random() * 1.2 + 0.7;
+    this.el.style.left = this.x + "px";
+    this.el.style.top = this.y + "px";
+
+    this.el.onclick = ()=>{
+      score++;
+      scoreText.innerText = score;
+      playCrunchSnow();
+      this.el.remove();
+      if(score >=28 && !unlocked){
+        unlocked = true;
+        openWish();
+      }
+    }
+    gameArea.appendChild(this.el);
+    gameSnowList.push(this);
+  }
+  update(){
+    this.y += this.speed;
+    this.el.style.top = this.y + "px";
+    if(this.y > gameArea.clientHeight){
+      this.el.remove();
+      const idx = gameSnowList.indexOf(this);
+      if(idx>-1) gameSnowList.splice(idx,1);
+    }
+  }
+}
+
+let gameAnimationId;
+function gameLoop(){
+  gameSnowList.forEach(s=>s.update());
+  gameAnimationId = requestAnimationFrame(gameLoop);
+}
+function startGame(){
+  score = 0;
+  unlocked = false;
+  scoreText.innerText = score;
+  gameArea.innerHTML = "";
+  gameSnowList = [];
+  if(gameTimer) clearInterval(gameTimer);
+  if(gameAnimationId) cancelAnimationFrame(gameAnimationId);
+  gameTimer = setInterval(()=>{
+    new GameSnow();
+  },600);
+  gameLoop();
+}
+function resetGame(){
+  if(gameAnimationId) cancelAnimationFrame(gameAnimationId);
+  startGame();
+}
+</script>
+</body>
+</html>
