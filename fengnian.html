@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>温枫年 档案</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft YaHei",SimSun,serif;}
+body{
+    background:#2c1810;
+    background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5 L35 20 L50 20 L38 30 L42 45 L30 38 L18 45 L22 30 L10 20 L25 20 Z' fill='%237c2c2c' fill-opacity='0.25'/%3E%3C/svg%3E");
+    color:#f0e2d8;
+    min-height:100vh;
+    padding:40px 20px;
+}
+.container{
+    max-width:700px;
+    margin:0 auto;
+    border:2px solid #a85c48;
+    padding:30px;
+    background-color:rgba(44,24,16,0.85);
+    box-shadow:0 0 12px #702f20;
+}
+h1{
+    text-align:center;
+    color:#d48268;
+    letter-spacing:4px;
+    margin-bottom:30px;
+    font-size:28px;
+}
+h1 span{color:#ffb399;}
+.open-btn{
+    display:block;
+    margin:40px auto;
+    padding:14px 32px;
+    font-size:18px;
+    background:#8c3c2c;
+    color:#fff1e9;
+    border:2px outset #d48268;
+    cursor:pointer;
+}
+.open-btn:active{border-style:inset;}
+
+.modal{
+    display:none;
+    position:fixed;
+    top:0;left:0;
+    width:100%;height:100%;
+    background:rgba(0,0,0,0.65);
+    z-index:10;
+}
+.modal-box{
+    width:90%;
+    max-width:580px;
+    margin:8vh auto;
+    border:3px solid #b8644c;
+    background:#f8ede7;
+    color:#3b1f17;
+    box-shadow:3px 3px 0 #63281b;
+    max-height:84vh;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+}
+.modal-header{
+    background:#914633;
+    padding:6px 10px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+.modal-header h2{color:#fff; font-size:16px;}
+.close-btn{
+    width:22px;height:22px;
+    border:1px solid #fff;
+    background:#c44c38;
+    color:white;
+    cursor:pointer;
+}
+.modal-body{
+    padding:20px;
+    line-height:1.7;
+    font-size:15px;
+    overflow-y:auto;
+}
+.modal-body h3{
+    color:#823b2a;
+    margin-bottom:10px;
+    border-bottom:1px solid #d4b8aa;
+    padding-bottom:4px;
+}
+
+.game-wrap{
+    margin-top:16px;
+    border:2px inset #b8644c;
+    height:220px;
+    background:#e9d9d0;
+    position:relative;
+    overflow:hidden;
+}
+.score-tip{
+    position:absolute;
+    top:6px;
+    left:8px;
+    z-index:2;
+    color:#63281b;
+    font-weight:bold;
+}
+.leaf{
+    position:absolute;
+    font-size:28px;
+    cursor:pointer;
+    user-select:none;
+}
+
+.sub-modal{
+    display:none;
+    position:fixed;
+    top:0;left:0;
+    width:100%;height:100%;
+    background:rgba(0,0,0,0.72);
+    z-index:20;
+    align-items:center;
+    justify-content:center;
+}
+.sub-box{
+    width:90%;
+    max-width:460px;
+    border:3px solid #b8644c;
+    background:#f8ede7;
+    color:#3b1f17;
+    padding:22px;
+}
+.sub-box h4{
+    color:#823b2a;
+    margin-bottom:10px;
+    font-size:16px;
+}
+#sadText{
+    width:100%;
+    min-height:110px;
+    padding:10px;
+    border:1px solid #b8644c;
+    background:#fff8f4;
+    color:#3b1f17;
+    resize:none;
+    font-size:14px;
+    margin-bottom:14px;
+}
+.btn-row{
+    display:flex;
+    gap:10px;
+    justify-content:center;
+}
+.sub-btn{
+    padding:7px 18px;
+    border:2px outset #d48268;
+    background:#8c3c2c;
+    color:#fff1e9;
+    cursor:pointer;
+}
+.sub-btn:active{border-style:inset;}
+
+@keyframes leafDriftAway{
+    0%{opacity:1;transform:translate(0,0) rotate(0deg);}
+    100%{opacity:0;transform:translate(var(--tx),var(--ty)) rotate(720deg);}
+}
+.leaf-particle{
+    position:absolute;
+    font-size:22px;
+    pointer-events:none;
+    animation:leafDriftAway 1.4s ease-out forwards;
+}
+.tip-voice{
+    position:absolute;
+    top:30px;
+    width:100%;
+    text-align:center;
+    color:#823b2a;
+    font-weight:bold;
+    pointer-events:none;
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>🍁 <span>温枫年</span> 档案 🍁</h1>
+    <p style="text-align:center;opacity:0.8;">落叶为信 · 旧档开启</p>
+    <button class="open-btn" onclick="openModal()">打开温枫年档案</button>
+</div>
+
+<div class="modal" id="modal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h2>温枫年 — 人物档案</h2>
+            <button class="close-btn" onclick="closeModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <h3>基础信息</h3>
+            <p>姓名：温枫年<br>
+            代号：枫<br>
+            生辰：秋末，枫叶红透之时<br>
+            外貌：冷白皮，眉眼清浅，发色偏深，身上常带着枫叶淡香</p>
+            <br>
+            <h3>人物简介</h3>
+            <p>秋枫生，温而有锋。外表安静疏离，内里藏着执拗的温柔。
+            偏爱深秋红枫，习惯收集干燥枫叶夹在旧书页里。
+            情绪很少外露，安静得像落满枯叶的林间小路。</p>
+            <br>
+            <h3>喜好&禁忌</h3>
+            <p>✓ 喜欢：枫叶、旧书、微凉的秋风、安静黄昏<br>
+            ✗ 忌讳：燥热的盛夏、喧闹不休的场合</p>
+
+            <h3>🍂 落叶寄思小游戏</h3>
+            <p>点击飘落枫叶进行收集，集齐29片，可以写下心里不开心，交由秋风带走。</p>
+            <div class="game-wrap" id="gameWrap">
+                <div class="score-tip">已收集枫叶：<span id="leafScore">0</span> /29</div>
+                <div class="tip-voice" id="voiceTip"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="sub-modal" id="subModal">
+    <div class="sub-box">
+        <h4>🍂 将心事交付秋叶</h4>
+        <textarea id="sadText" placeholder="在这里写下你的不开心……写完点击交付销毁，烦恼将化作枫叶随风消散。"></textarea>
+        <div class="btn-row">
+            <button class="sub-btn" onclick="destroySad()">交付销毁</button>
+            <button class="sub-btn" onclick="closeSubModal()">暂且收起</button>
+        </div>
+    </div>
+</div>
+
+<script>
+//生成极轻的点击音效（叮咚，音量很小）
+function playLightClickSound(){
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = "sine";
+    osc.frequency.value = 1200;
+    gain.gain.value = 0.08; //音量压低，轻音
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.08);
+}
+
+function speakAsYouWish(){
+    const utter = new SpeechSynthesisUtterance("如你所愿");
+    utter.lang = "zh-CN";
+    utter.rate = 0.85;
+    utter.pitch = 1.15;
+    utter.volume = 0.75;
+    speechSynthesis.speak(utter);
+    const tipDom = document.getElementById("voiceTip");
+    tipDom.innerText = "——如你所愿——";
+    setTimeout(()=>{tipDom.innerText = "";},1800);
+}
+
+function openModal(){
+    document.getElementById("modal").style.display="block";
+    startLeafGame();
+}
+function closeModal(){
+    document.getElementById("modal").style.display="none";
+    stopLeafGame();
+}
+window.onclick=function(e){
+    const modal=document.getElementById("modal");
+    if(e.target===modal) {
+        modal.style.display="none";
+        stopLeafGame();
+    }
+}
+
+const subModal = document.getElementById("subModal");
+function openSubModal(){
+    subModal.style.display="flex";
+}
+function closeSubModal(){
+    subModal.style.display="none";
+}
+
+const gameWrap = document.getElementById("gameWrap");
+const scoreDom = document.getElementById("leafScore");
+let score = 0;
+let unlocked = false;
+let leafTimer = null;
+let leafList = [];
+
+function spawnLeaf(){
+    const el = document.createElement("div");
+    el.className = "leaf";
+    el.innerText = "🍂";
+    const w = gameWrap.clientWidth;
+    el.style.left = (Math.random()*(w-30))+"px";
+    el.style.top = "-30px";
+    const speed = 0.7 + Math.random()*1.0;
+
+    el.onclick = function(){
+        playLightClickSound(); //轻音点击音效
+        score++;
+        scoreDom.innerText = score;
+        el.remove();
+        if(score >=29 && !unlocked){
+            unlocked = true;
+            openSubModal();
+        }
+    }
+    gameWrap.appendChild(el);
+    leafList.push({el,speed});
+}
+
+function gameLoop(){
+    const h = gameWrap.clientHeight;
+    for(let i=leafList.length-1;i>=0;i--){
+        const obj = leafList[i];
+        let topVal = parseFloat(obj.el.style.top||0);
+        topVal += obj.speed;
+        obj.el.style.top = topVal + "px";
+        if(topVal>h){
+            obj.el.remove();
+            leafList.splice(i,1);
+        }
+    }
+    requestAnimationFrame(gameLoop);
+}
+
+function startLeafGame(){
+    score=0;
+    unlocked=false;
+    scoreDom.innerText=0;
+    leafList.forEach(x=>x.el.remove());
+    leafList=[];
+    if(leafTimer) clearInterval(leafTimer);
+    leafTimer = setInterval(spawnLeaf,650);
+    gameLoop();
+}
+function stopLeafGame(){
+    if(leafTimer) clearInterval(leafTimer);
+}
+
+function destroySad(){
+    closeSubModal();
+    speakAsYouWish();
+
+    for(let i=0;i<14;i++){
+        const p = document.createElement("div");
+        p.className="leaf-particle";
+        p.innerText="🍂";
+        p.style.left="50%";
+        p.style.top="50%";
+        p.style.setProperty("--tx", (-120+Math.random()*240)+"px");
+        p.style.setProperty("--ty", (-140+Math.random()*120)+"px");
+        gameWrap.appendChild(p);
+        setTimeout(()=>p.remove(),1400);
+    }
+    setTimeout(()=>{
+        startLeafGame();
+    },1600);
+}
+</script>
+</body>
+</html>
